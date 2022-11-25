@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "api-proxy"
+version = "0.1.0"
+description = ""
+authors = ["Fabio Gallotti <fabio.gallotti.93@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.group.test.dependencies]
+black = "^22.10.0"
+flake8 = "^6.0.0"
+isort = "^5.10.1"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+
+[tool.poetry.group.local]
+optional = true
+
+[tool.poetry.group.local.dependencies]
+pre-commit = "^2.20.0"
+python-dotenv = "^0.21.0"
+uvicorn = "^0.20.0"
+
+[tool.black]
+line-length = 100
+target-version = ['py39']
+include = '''
+/(
+  src/.*\.py
+  | tests/.*\.py
+)
+'''
+
+[tool.isort]
+py_version=39
+profile = "black"
+line_length = 100
+known_first_party = ["src", "tests"]
+src_paths = ["src", "tests"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --doctest-modules"
+markers = ["integration", "slow"]
+testpaths = ["src/api_proxy", "tests"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
