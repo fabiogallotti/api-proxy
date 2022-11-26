@@ -10,10 +10,12 @@ fastapi = "0.86.0"
 
 [tool.poetry.group.test.dependencies]
 black = "^22.10.0"
+factory-boy = "^3.2.1"
 flake8 = "^6.0.0"
 isort = "^5.10.1"
 pytest = "^7.2.0"
 pytest-cov = "^4.0.0"
+pytest-mock = "^3.10.0"
 requests = "^2.28.1"
 responses = "^0.22.0"
 
@@ -22,7 +24,6 @@ optional = true
 
 [tool.poetry.group.local.dependencies]
 pre-commit = "^2.20.0"
-python-dotenv = "^0.21.0"
 uvicorn = "^0.20.0"
 
 [tool.black]

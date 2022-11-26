@@ -6,7 +6,7 @@ def load():
     return SimpleNamespace(
         app={
             "name": "api_proxy",
-            "env": os.environ["ENV"],
+            "env": os.getenv("ENV", "test"),
             "version": os.getenv("VERSION", "unknown"),
         },
         web_api={

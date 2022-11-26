@@ -20,4 +20,4 @@ COPY . /app
 
 RUN poetry install --with local
 
-CMD ["poetry", "run", "uvicorn", "--env-file", ".env.example", "--host", "0.0.0.0", "--port", "8080", "src.main:app"]
+CMD ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "--port", "8080", "src.main:app"]
