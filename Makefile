@@ -13,9 +13,9 @@ install: ## install dependencies
 
 .PHONY: lint
 lint: ## lint code
-	poetry run isort src tests
-	poetry run black src tests
-	poetry run flake8 src tests
+	poetry run isort .
+	poetry run black .
+	poetry run flake8 .
 
 .PHONY: test-unit
 test-unit: ## run unit tests
@@ -29,4 +29,4 @@ test: ## run all tests
 dev:
 	poetry run uvicorn \
 		--env-file .env.example --no-access-log --host 0.0.0.0 --port 8080 \
-		"src.main:asgi_app"
+		"src.main:app"
