@@ -1,0 +1,17 @@
+__pycache__
+.cache
+.coverage
+.env
+.git/
+.github/
+.pytest_cache/
+.Python
+.python-version
+.venv/
+.vscode/
+*.egg-info
+*.log
+*.pyc
+*.pyd
+*.pyo
+tests/
