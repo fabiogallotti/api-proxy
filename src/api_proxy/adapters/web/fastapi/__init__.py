@@ -3,7 +3,11 @@ from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-API_V1_PREFIX = "api/v1"
+from api_proxy.controllers import Controller
+
+from .endpoints import router
+
+API_V1_PREFIX = "/api/v1"
 
 
 class WebApiConfig(BaseModel):
@@ -27,9 +31,11 @@ def add_healthcheck_api(app: FastAPI, version: str):
     )
 
 
-def create_app(config: WebApiConfig) -> FastAPI:
+def create_app(controller: Controller, config: WebApiConfig) -> FastAPI:
     app = FastAPI(title=config.title, version=config.version, root_path=config.root_path or "")
 
     add_healthcheck_api(app, config.version)
+
+    app.include_router(router(controller=controller), prefix=API_V1_PREFIX)
 
     return app

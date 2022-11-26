@@ -17,16 +17,10 @@ lint: ## lint code
 	poetry run black .
 	poetry run flake8 .
 
-.PHONY: test-unit
-test-unit: ## run unit tests
-	poetry run pytest tests --rununit
-
 .PHONY: test
 test: ## run all tests
 	poetry run pytest tests -vv --cov-report term-missing --cov=src
 
-.PHONY: dev
-dev:
-	poetry run uvicorn \
-		--env-file .env.example --no-access-log --host 0.0.0.0 --port 8080 \
-		"src.main:app"
+.PHONY: run-docker
+run-docker:
+	sh run.sh
