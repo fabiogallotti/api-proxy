@@ -1,11 +1,18 @@
 from typing import Optional
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from api_proxy.controllers import Controller
 
 from .endpoints import router
+from .exceptions import (
+    http_exception_handler,
+    request_validation_exception_handler,
+    unhandled_error_exception_handler,
+)
 
 API_V1_PREFIX = "/api/v1"
 
@@ -33,6 +40,10 @@ def add_healthcheck_api(app: FastAPI, version: str):
 
 def create_app(controller: Controller, config: WebApiConfig) -> FastAPI:
     app = FastAPI(title=config.title, version=config.version, root_path=config.root_path or "")
+
+    app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+    app.add_exception_handler(RequestValidationError, request_validation_exception_handler)
+    app.add_exception_handler(Exception, unhandled_error_exception_handler)
 
     add_healthcheck_api(app, config.version)
 

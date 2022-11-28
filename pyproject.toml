@@ -7,6 +7,7 @@ authors = ["Fabio Gallotti <fabio.gallotti.93@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 fastapi = "0.86.0"
+tenacity = "^8.1.0"
 
 [tool.poetry.group.test.dependencies]
 black = "^22.10.0"

@@ -1,8 +1,11 @@
+import json
+
 import pytest
 import responses
 
 from api_proxy.adapters.gateway.country import HttpCountryGateway
 from api_proxy.entities.country import Country
+from api_proxy.entities.gateway import CountryGatewayErrors
 
 COUNTRY_EXAMPLE_RESPONSE = [
     {
@@ -105,3 +108,69 @@ def test_does_correct_http_request(gateway, mocked_responses):
     result = gateway.get_country_name(country_id=country_id)
     # then
     assert result == Country(name=COUNTRY_EXAMPLE_RESPONSE[0]["name"]["official"])
+
+
+@pytest.mark.parametrize(
+    "status,body,exception,expected_calls",
+    [
+        pytest.param(
+            404,
+            json.dumps(
+                {
+                    "errors": [
+                        {
+                            "status": "404",
+                            "title": "Not Found",
+                        }
+                    ]
+                }
+            ),
+            CountryGatewayErrors.NotFoundError,
+            1,
+        ),
+        pytest.param(
+            422,
+            json.dumps(
+                {
+                    "errors": [
+                        {
+                            "status": "422",
+                            "title": "Validation Error",
+                        }
+                    ]
+                }
+            ),
+            CountryGatewayErrors.ValidationError,
+            1,
+        ),
+        pytest.param(
+            500,
+            json.dumps(
+                {
+                    "errors": [
+                        {
+                            "status": "500",
+                            "title": "Internal Server Error",
+                        }
+                    ]
+                }
+            ),
+            CountryGatewayErrors.BaseError,
+            3,
+        ),
+    ],
+)
+def test_raises_if_errors(gateway, mocked_responses, status, body, exception, expected_calls):
+    country_id = "de"
+    url = f"https://restcountries.com/v3.1/alpha/{country_id}"
+    mocked_responses.add(
+        responses.GET,
+        url,
+        body=body,
+        status=status,
+        content_type="application/json",
+    )
+    with pytest.raises(exception):
+        gateway.get_country_name(country_id=country_id)
+
+    assert len(mocked_responses.calls) == expected_calls

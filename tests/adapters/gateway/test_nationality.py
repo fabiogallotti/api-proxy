@@ -1,7 +1,10 @@
+import json
+
 import pytest
 import responses
 
 from api_proxy.adapters.gateway.nationality import HttpNationalityGateway
+from api_proxy.entities.gateway import NationalityGatewayErrors
 from api_proxy.entities.nationality import Nationality
 
 NATIONALITY_EXAMPLE_RESPONSE = {
@@ -35,3 +38,68 @@ def test_does_correct_http_request(gateway, mocked_responses):
     result = gateway.get_nationality(name="michael")
     # then
     assert result == Nationality(**NATIONALITY_EXAMPLE_RESPONSE)
+
+
+@pytest.mark.parametrize(
+    "status,body,exception,expected_calls",
+    [
+        pytest.param(
+            404,
+            json.dumps(
+                {
+                    "errors": [
+                        {
+                            "status": "404",
+                            "title": "Not Found",
+                        }
+                    ]
+                }
+            ),
+            NationalityGatewayErrors.NotFoundError,
+            1,
+        ),
+        pytest.param(
+            422,
+            json.dumps(
+                {
+                    "errors": [
+                        {
+                            "status": "422",
+                            "title": "Validation Error",
+                        }
+                    ]
+                }
+            ),
+            NationalityGatewayErrors.ValidationError,
+            1,
+        ),
+        pytest.param(
+            500,
+            json.dumps(
+                {
+                    "errors": [
+                        {
+                            "status": "500",
+                            "title": "Internal Server Error",
+                        }
+                    ]
+                }
+            ),
+            NationalityGatewayErrors.BaseError,
+            3,
+        ),
+    ],
+)
+def test_raises_if_errors(gateway, mocked_responses, status, body, exception, expected_calls):
+    url = "https://api.nationalize.io"
+    mocked_responses.add(
+        responses.GET,
+        url,
+        body=body,
+        status=status,
+        content_type="application/json",
+    )
+    with pytest.raises(exception):
+        gateway.get_nationality(name="michael")
+
+    assert len(mocked_responses.calls) == expected_calls

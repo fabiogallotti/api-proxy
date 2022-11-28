@@ -3,6 +3,14 @@ from api_proxy.entities.nationality import Nationality
 from api_proxy.usecases import common
 
 
+class GetMostProbableNationalityError:
+    class BaseError(Exception):
+        pass
+
+    class NoCountryFound(BaseError):
+        pass
+
+
 class UsecaseEnv(common.UsecaseEnv):
     nationality_gateway: NationalityGateway
 
@@ -16,8 +24,10 @@ class Usecase(common.Usecase):
 
     def execute(self, req: UsecaseReq) -> Nationality:
         nationality = self.env.nationality_gateway.get_nationality(name=req.name)
-
         sorted_countries = sorted(nationality.country, key=lambda x: x.probability, reverse=True)
-        most_probable_country = sorted_countries[0]
 
-        return Nationality(name=nationality.name, country=[most_probable_country])
+        try:
+            most_probable_country = sorted_countries[0]
+            return Nationality(name=nationality.name, country=[most_probable_country])
+        except IndexError as err:
+            raise GetMostProbableNationalityError.NoCountryFound("no country found") from err
