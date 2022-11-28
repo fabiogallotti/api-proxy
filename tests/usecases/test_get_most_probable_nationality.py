@@ -1,7 +1,12 @@
 import pytest
 
 from api_proxy.entities.gateway import NationalityGateway
-from api_proxy.usecases.get_most_probable_nationality import Usecase, UsecaseEnv, UsecaseReq
+from api_proxy.usecases.get_most_probable_nationality import (
+    GetMostProbableNationalityError,
+    Usecase,
+    UsecaseEnv,
+    UsecaseReq,
+)
 from tests import factories as fty
 
 
@@ -42,3 +47,16 @@ def test_get_most_probable_nationality(env, nationality_gateway):
     # then
     assert res == expected_nationality
     nationality_gateway.get_nationality.assert_called_once_with(name=name)
+
+
+def test_raises_for_no_country(env, nationality_gateway):
+    # given
+    name = "fabio"
+    nationality = fty.NationalityFactory(name=name, country=[])
+    nationality_gateway.get_nationality.return_value = nationality
+    # when
+    req = UsecaseReq(name=name)
+    with pytest.raises(GetMostProbableNationalityError.NoCountryFound):
+        Usecase(env=env).execute(req=req)
+    # then
+    nationality_gateway.get_nationality.assert_called_once()

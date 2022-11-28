@@ -4,6 +4,10 @@ from pydantic import BaseModel
 
 from api_proxy.controllers import Controller
 from api_proxy.entities.country import MostProbableCountry
+from api_proxy.entities.gateway import CountryGatewayErrors, NationalityGatewayErrors
+from api_proxy.usecases.get_most_probable_nationality import GetMostProbableNationalityError
+
+from .errors import JsonApiErrors
 
 
 class MostProbableCountryResponse(BaseModel):
@@ -17,8 +21,10 @@ def route_get_most_probable_country(controller: Controller):
         try:
             res = controller.get_most_probable_country(name=name)
             return MostProbableCountryResponse(data=res)
-        except Exception:
-            raise HTTPException(status_code=500, detail="Internal Server Error")
+        except NationalityGatewayErrors.NotFoundError:
+            raise HTTPException(status_code=404, detail="Nationality not found")
+        except (CountryGatewayErrors.NotFoundError, GetMostProbableNationalityError.NoCountryFound):
+            raise HTTPException(status_code=404, detail="Country not found")
 
     return APIRoute(
         path="/name/{name}",
@@ -28,6 +34,12 @@ def route_get_most_probable_country(controller: Controller):
         methods=["GET"],
         summary="Get most probable country of the given name",
         response_description="Returns the given name and the most probable country in a message",
+        responses={
+            400: {"model": JsonApiErrors, "description": "Malformed cursor."},
+            403: {"model": JsonApiErrors, "description": "Forbidden."},
+            422: {"model": JsonApiErrors, "description": "Validation Error."},
+            500: {"model": JsonApiErrors, "description": "Internal server error."},
+        },
     )
 
 
