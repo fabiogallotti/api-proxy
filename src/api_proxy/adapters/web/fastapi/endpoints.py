@@ -27,7 +27,7 @@ def route_get_most_probable_country(controller: Controller):
             raise HTTPException(status_code=404, detail="Country not found")
 
     return APIRoute(
-        path="/name/{name}",
+        path="/names/{name}",
         endpoint=endpoint,
         status_code=200,
         response_model=MostProbableCountryResponse,

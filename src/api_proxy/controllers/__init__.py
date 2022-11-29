@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import dataclasses
 
 from api_proxy.adapters.gateway.country import HttpCountryGateway
@@ -9,12 +11,15 @@ from api_proxy.usecases import get_most_probable_nationality
 
 @dataclasses.dataclass
 class Controller:
+    logger: Any
+
     def __post_init_post_parse__(self):
         self.nationality_gateway = HttpNationalityGateway()
         self.country_gateway = HttpCountryGateway()
 
     def get_most_probable_country(self, name: str) -> MostProbableCountry:
         env = get_most_probable_nationality.UsecaseEnv(
+            logger=self.logger,
             nationality_gateway=self.nationality_gateway,
         )
         req = get_most_probable_nationality.UsecaseReq(name=name)

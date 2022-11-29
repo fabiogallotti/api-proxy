@@ -16,8 +16,9 @@ def nationality_gateway(mocker):
 
 
 @pytest.fixture
-def env(nationality_gateway):
+def env(logger, nationality_gateway):
     return UsecaseEnv(
+        logger=logger,
         nationality_gateway=nationality_gateway,
     )
 

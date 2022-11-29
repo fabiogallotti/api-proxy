@@ -6,17 +6,17 @@ from api_proxy.controllers import Controller
 
 
 @pytest.fixture(scope="session")
-def controller():
-    return Controller()
+def controller(logger):
+    return Controller(logger=logger)
 
 
 @pytest.fixture(scope="function")
-def app(controller):
+def app(logger, controller):
     config = WebApiConfig(
         title="test app",
         version="test-version",
     )
-    return create_app(controller, config)
+    return create_app(logger, controller, config)
 
 
 @pytest.fixture(scope="function")

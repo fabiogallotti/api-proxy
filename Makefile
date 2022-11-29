@@ -21,6 +21,6 @@ lint: ## lint code
 test: ## run all tests
 	poetry run pytest tests -vv --cov-report term-missing --cov=src
 
-.PHONY: run-docker
-run-docker:
+.PHONY: run-server
+run-server:
 	sh run.sh
