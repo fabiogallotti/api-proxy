@@ -1,3 +1,5 @@
+from typing import Any
+
 from api_proxy.entities.gateway import NationalityGateway
 from api_proxy.entities.nationality import Nationality
 from api_proxy.usecases import common
@@ -12,6 +14,7 @@ class GetMostProbableNationalityError:
 
 
 class UsecaseEnv(common.UsecaseEnv):
+    logger: Any
     nationality_gateway: NationalityGateway
 
 

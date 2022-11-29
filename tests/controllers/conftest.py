@@ -14,5 +14,5 @@ def http_country_gateway(mocker):
 
 
 @pytest.fixture
-def controller():
-    return Controller()
+def controller(logger):
+    return Controller(logger=logger)

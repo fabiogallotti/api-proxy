@@ -1,7 +1,8 @@
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -13,6 +14,7 @@ from .exceptions import (
     request_validation_exception_handler,
     unhandled_error_exception_handler,
 )
+from .logging import LoggingMiddleware
 
 API_V1_PREFIX = "/api/v1"
 
@@ -38,14 +40,20 @@ def add_healthcheck_api(app: FastAPI, version: str):
     )
 
 
-def create_app(controller: Controller, config: WebApiConfig) -> FastAPI:
+def create_app(logger: Any, controller: Controller, config: WebApiConfig) -> FastAPI:
     app = FastAPI(title=config.title, version=config.version, root_path=config.root_path or "")
+
+    @app.get("/", include_in_schema=False)
+    async def docs_redirect():
+        return RedirectResponse(url="/docs")
 
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
     app.add_exception_handler(RequestValidationError, request_validation_exception_handler)
     app.add_exception_handler(Exception, unhandled_error_exception_handler)
 
     add_healthcheck_api(app, config.version)
+
+    app.add_middleware(LoggingMiddleware, logger=logger)
 
     app.include_router(router(controller=controller), prefix=API_V1_PREFIX)
 

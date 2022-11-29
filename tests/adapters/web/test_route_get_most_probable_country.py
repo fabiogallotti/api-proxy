@@ -14,7 +14,7 @@ def test_returns_expected_country(client, mocker, controller):
     expected_country = MostProbableCountry(name=name, message="msg")
     mocker.patch.object(controller, "get_most_probable_country", return_value=expected_country)
     # when
-    response = client.get(f"{API_V1_PREFIX}/name/{name}")
+    response = client.get(f"{API_V1_PREFIX}/names/{name}")
     # then
     assert response.status_code == 200
     assert response.json()["data"] == json.loads(expected_country.json())
@@ -40,6 +40,6 @@ def test_returns_404(client, mocker, controller, error):
     name = "fabio"
     mocker.patch.object(controller, "get_most_probable_country", side_effect=error)
     # when
-    response = client.get(f"{API_V1_PREFIX}/name/{name}")
+    response = client.get(f"{API_V1_PREFIX}/names/{name}")
     # then
     assert response.status_code == 404
